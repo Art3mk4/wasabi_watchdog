@@ -1,6 +1,6 @@
 services:
   watchdog_app:
-    image: art3mk4/wasabi_watchdog:latest
+    image: reg.sushi-market.dev/feedback-parser/app:test
     restart: unless-stopped
     volumes:
       - './storage/logs:/app/storage/logs'
@@ -13,6 +13,7 @@ services:
       DB_HOST: '${DB_HOST}'
       DB_PORT: '${DB_PORT}'
       DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
       DB_DATABASE: '${DB_DATABASE}'
 
     ports:
@@ -22,27 +23,22 @@ services:
       postgres:
         condition: service_healthy
 
-    networks:
-      - watchdog_network
-
   postgres:
     image: 'postgres:17-alpine'
     restart: unless-stopped
     ports:
-      - '${FORWARD_REDIS_PORT:-5432}:5432'
+      - ${FORWARD_DB_PORT:-5432}:5432
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:-secret}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
-      - 'postgres-data:/var/lib/postgresql/data'
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready' -U ${DB_USER} -d ${DB_DATABASE}"]
-      interval: 10s
-      timeout: 5s
+      test: [CMD, pg_isready, -q, -d, "${DB_DATABASE}", -U, "${DB_USERNAME}"]
       retries: 3
-    networks:
-      - watchdog_network
+      timeout: 5s
 
 volumes:
   postgres-data:
-
-networks:
-  watchdog_network:
-    driver: bridge
