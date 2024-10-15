@@ -5,18 +5,15 @@ services:
     volumes:
       - './storage/logs:/app/storage/logs'
       - './proxy-list.txt:/app/proxy-list.txt'
+    env_file: ".env"
     environment:
+      NODE_ENV: '${NODE_ENV}'
       APP_KEY: '${APP_KEY}'
-
-      TZ: '${TZ:-UTC}'
-      NODE_ENV: '${NODE_ENV:-production}'
-
-      POSTGRES_HOST: '${DB_HOST:-postgres}'
-      POSTGRES_PORT: '${DB_PORT:-5432}'
-      POSTGRES_PASSWORD: '${DB_PASSWORD:-}'
-
-      LOG_LEVEL: '${LOG_LEVEL:-trace}'
-      LOGTAIL_SOURCE_TOKEN: '${LOGTAIL_SOURCE_TOKEN:-}'
+      LOG_LEVEL: '${LOG_LEVEL}'
+      DB_HOST: '${DB_HOST}'
+      DB_PORT: '${DB_PORT}'
+      DB_USER: '${DB_USER}'
+      DB_DATABASE: '${DB_DATABASE}'
 
     ports:
       - '${PORT:-80}:80'
@@ -31,10 +28,6 @@ services:
   postgres:
     image: 'postgres:17-alpine'
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: '${DB_USER}'
-      POSTGRES_PASSWORD: '${DB_PASSWROD}'
-      POSTGRES_DB: '${DB_DATABASE}'
     ports:
       - '${FORWARD_REDIS_PORT:-5432}:5432'
     volumes:
