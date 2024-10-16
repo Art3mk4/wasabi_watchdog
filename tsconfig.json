@@ -9,6 +9,8 @@
       "#models/*": ["./app/models/*.js"],
       "#middleware/*": ["./app/middleware/*.js"],
       "#validators/*": ["./app/validators/*.js"],
+      "#jobs/*": ["./app/jobs/*.js"],
+      "#services/*": ["./app/services/*.js"],
       "#database/*": ["./database/*.js"],
       "#tests/*": ["./tests/*.js"],
       "#start/*": ["./start/*.js"],
