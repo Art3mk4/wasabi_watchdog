@@ -4,7 +4,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 export enum ReviewSource {
   DoubleGIS = '2gis',
   YandexMaps = 'yandex_map',
-  DeliveryClub = 'delivery_club'
+  DeliveryClub = 'delivery_club',
 }
 
 export default class Review extends BaseModel {

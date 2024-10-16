@@ -1,4 +1,4 @@
-import vine from "@vinejs/vine"
+import vine from '@vinejs/vine'
 
 export const loginValidator = vine.compile(
   vine.object({
@@ -16,7 +16,7 @@ export const registerValidator = vine.compile(
       .unique(async (query, field) => {
         const user = await query.from('users').where('email', field).first()
         return !user
-    }),
-    password: vine.string().minLength(12).maxLength(512)
+      }),
+    password: vine.string().minLength(12).maxLength(512),
   })
 )
