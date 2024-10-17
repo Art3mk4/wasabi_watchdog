@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import ScraperJob from '#jobs/scraper_job'
 
 const AuthController = () => import('#controllers/auth_controller')
 
@@ -21,6 +22,7 @@ router
 
 router
   .get('/', async () => {
+    await ScraperJob.enqueue()
     return {
       hello: 'world',
     }

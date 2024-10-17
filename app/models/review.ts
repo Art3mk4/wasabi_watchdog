@@ -21,7 +21,7 @@ export default class Review extends BaseModel {
   declare text: string | null
 
   @column()
-  declare date: DateTime
+  declare date: Date
 
   @column()
   declare source: ReviewSource
