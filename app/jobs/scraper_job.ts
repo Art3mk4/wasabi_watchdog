@@ -21,11 +21,11 @@ export default class ScraperJob extends BaseJob {
   async scrape() {
     logger.info('scrape start')
     try {
-      const data = await this.parse()
-      const clearData: ItemData[] = data.map((item) => {
-        item.date = this.parseDate(item.date)
-        return item
-      })
+      const data: ItemData[] = await this.parse()
+      const clearData: ItemData[] = data.map((item) => ({
+        ...item,
+        date: this.parseDate(item.date),
+      }))
       logger.info(clearData)
     } catch (error) {
       console.error('Error closing browser: ', error)
@@ -34,11 +34,12 @@ export default class ScraperJob extends BaseJob {
   }
 
   async parse() {
+    // @ts-expect-error disable error for use
     puppeteer.use(stealthPlugin())
     const launchOptions = {
       dumpio: true,
       headless: false,
-      executablePath: puppeteer.executablePath(),
+      executablePath: (puppeteer as any).executablePath(),
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -51,6 +52,7 @@ export default class ScraperJob extends BaseJob {
     }
     const url = env.get('PARSE_URL_2GIS')
 
+    // @ts-expect-error disable error for launch
     const browser = await puppeteer.launch(launchOptions)
     try {
       const page = await browser.newPage()
@@ -64,40 +66,38 @@ export default class ScraperJob extends BaseJob {
       })
       logger.info('make screenshot')
 
-      const items: ItemData[] = await page.evaluate(() => {
+      return await page.evaluate(() => {
         return [
           ...Object.values(document.querySelectorAll('._h3pmwn')).map((item) => {
             return {
               name:
-                item.parentElement.parentElement.parentElement.querySelector('._16s5yj36')
-                  .childNodes[0].data || '',
-              text: item.childNodes[0].data || '',
+                item.parentElement?.parentElement?.parentElement?.querySelector('._16s5yj36')
+                  ?.childNodes[0]?.nodeValue || '',
+              text: item.childNodes[0]?.nodeValue || '',
               date:
-                item.parentElement.parentElement.parentElement.querySelector('._139ll30')
-                  .childNodes[0].data || '',
+                item.parentElement?.parentElement?.parentElement?.querySelector('._139ll30')
+                  ?.childNodes[0]?.nodeValue || '',
               rating:
-                item.parentElement.parentElement.parentElement.querySelector('._1fkin5c').childNodes
-                  .length || null,
+                item.parentElement?.parentElement?.parentElement?.querySelector('._1fkin5c')
+                  ?.childNodes.length || null,
             }
           }),
           ...Object.values(document.querySelectorAll('._1oir7fah')).map((item) => {
             return {
               name:
-                item.parentElement.parentElement.parentElement.querySelector('._16s5yj36')
-                  .childNodes[0].data || '',
-              text: item.childNodes[0].data || '',
+                item.parentElement?.parentElement?.parentElement?.querySelector('._16s5yj36')
+                  ?.childNodes[0]?.nodeValue || '',
+              text: item.childNodes[0]?.nodeValue || '',
               date:
-                item.parentElement.parentElement.parentElement.querySelector('._139ll30')
-                  .childNodes[0].data || '',
+                item.parentElement?.parentElement?.parentElement?.querySelector('._139ll30')
+                  ?.childNodes[0]?.nodeValue || '',
               rating:
-                item.parentElement.parentElement.parentElement.querySelector('._1fkin5c').childNodes
-                  .length || null,
+                item.parentElement?.parentElement?.parentElement?.querySelector('._1fkin5c')
+                  ?.childNodes.length || null,
             }
           }),
         ]
       })
-
-      return items
     } catch (error) {
       logger.info(error)
     } finally {
